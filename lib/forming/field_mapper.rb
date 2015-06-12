@@ -6,31 +6,8 @@ module Forming
     def initialize(form)
       @form = form
 
-      form.exposures.each do |field|
-        self.class.instance_eval do
-          define_method "#{field.name}_field" do
-            factory.build(field)
-          end
-
-          define_method field.name do
-            @form.model.public_send(field.name)
-          end
-        end
-      end
-
-      form.virtual_exposures.each do |field|
-        self.class.instance_eval do
-          define_method "#{field.name}_field" do
-            virtual_factory.build(field)
-          end
-
-          define_method field.name do
-            if @form.model.respond_to?(field.name)
-              @form.model.public_send(field.name)
-            end
-          end
-        end
-      end
+      delegate_fields_to factory, with: form.exposures
+      delegate_fields_to virtual_factory, with: form.virtual_exposures
     end
 
     def submit_field
@@ -39,6 +16,16 @@ module Forming
     end
 
     private
+
+    def delegate_fields_to(factory, with:)
+      with.each do |field|
+        self.class.instance_eval do
+          define_method "#{field.name}_field" do
+            factory.build field
+          end
+        end
+      end
+    end
 
     def factory
       @factory ||= InputFactory.new(@form)

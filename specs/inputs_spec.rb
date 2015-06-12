@@ -16,7 +16,7 @@ RSpec.describe Forming::Inputs::TextField do
 
     subject { described_class.new model, field, value }
 
-    it 'should contain the all base attributes' do
+    it 'should contain all base attributes' do
       input = subject.render
       expect(input).to include 'type="text"'
       expect(input).to include 'name="user[city]"'
