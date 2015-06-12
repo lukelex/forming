@@ -19,11 +19,15 @@ module Forming
 
     def delegate_fields_to(factory, with:)
       with.each do |field|
-        self.class.instance_eval do
-          define_method "#{field.name}_field" do
-            factory.build field
-          end
+        define_instance_method "#{field.name}_field" do
+          factory.build field
         end
+      end
+    end
+
+    def define_instance_method(name, &block)
+      self.class.instance_eval do
+        define_method name, &block
       end
     end
 
